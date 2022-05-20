@@ -1,97 +1,74 @@
 #!/usr/bin/env python3.9
 
-# from person import Person
-# 
-# def main():
-# 	f = Person(5)
-# 	print(f.get())
-# 	f.set(7)
-# 	print(f.get())
-# 
-# if __name__ == '__main__':
-# 	main()
+from person import Person
+import time
+import matplotlib.pyplot as plt
+from numba import njit
 
-# import tkinter as tk
-# 
-# border_effects = {   "flat": tk.FLAT,   "sunken": tk.SUNKEN,   "raised": tk.RAISED,   "groove": tk.GROOVE,   "ridge": tk.RIDGE,}
-# 
-# window = tk.Tk()
-# # for relief_name, relief in border_effects.items():
-# #     frame = tk.Frame(master=window, relief=relief, borderwidth=5)
-# #     frame.pack(side=tk.LEFT)
-# #     label = tk.Label(master=frame, text=relief_name)
-# #     label.pack()
-# # frame = tk.Frame(master=window, width=150, height=150, bg="red")
-# # frame.pack(fill=tk.BOTH,expand = True)
-# 
-# label = tk.Label(text="Hello, Tkinter", fg="white", bg="black")
-# for i in range(3):
-#     for j in range(3):
-#         frame = tk.Frame(
-#             master=window,
-#             relief=tk.RAISED,
-#             borderwidth=1
-#         )
-#         frame.grid(row=i, column=j)
-#         label = tk.Label(master=frame, text=f"Row {i}\nColumn {j}")
-#         label.pack()
-# button = tk.Button(text="Click me!",width=25,height=5,bg="blue",fg="black",)
-# button.pack()
-# entry = tk.Entry(fg="yellow", bg="blue", width=50)
-# entry.pack()
-# label.pack()
-# window.mainloop()
+def main():
+    f = Person(5)
+    print(f.get())
+    f.set(7)
+    print(f.get())
 
-from tkinter import *
-from tkinter.ttk import *
-import random
+if __name__ == '__main__':
+    main()
+
+
+def fib_py(n):
+    if n <= 1:
+        return n
+    else:
+        return(fib_py(n-1) + fib_py(n-2))
  
-class GFG:
-    def __init__(self, master = None):
-        self.master = master
-         
-        # to take care movement in x direction
-        self.x_pos = 1
-        # to take care movement in y direction
-        self.y_pos = 0
- 
-        # canvas object to create shape
-        self.canvas = Canvas(master)
-        # creating rectangle
-        self.objects = []
-        for i in range(5):
-            ob = self.canvas.create_oval(5, 5, 25, 25, fill = "black")
-            self.objects.append(ob)
-        self.canvas.pack()
- 
-        # calling class's movement method to
-        # move the rectangle
-        self.movement()
-     
-    def movement(self):
- 
-        # This is where the move() method is called
-        # This moves the rectangle to x, y coordinates
-        for ob in self.objects:
-            x = random.randint(-10,20)
-            y = random.randint(-10,20)
-            self.canvas.move(ob, x, y)
- 
-        self.canvas.after(100, self.movement)
- 
-if __name__ == "__main__":
- 
-    # object of class Tk, responsible for creating
-    # a tkinter toplevel window
-    master = Tk()
-    gfg = GFG(master)
- 
-    # This will bind arrow keys to the tkinter
-    # toplevel which will navigate the image or drawing
-    master.bind("<KeyPress-Left>", lambda e: gfg.left(e))
-    master.bind("<KeyPress-Right>", lambda e: gfg.right(e))
-    master.bind("<KeyPress-Up>", lambda e: gfg.up(e))
-    master.bind("<KeyPress-Down>", lambda e: gfg.down(e))
-     
-    # Infinite loop breaks only by interrupt
-    mainloop()
+def time_fib_py(n):
+    start = time.time()
+    fib_py(n)
+    end = time.time()
+    return end - start
+
+@njit
+def fib_numba(n):
+    if n <= 1:
+        return n
+    else:
+        return(fib_numba(n-1) + fib_numba(n-2))
+
+def time_fib_numba(n):
+    fib_numba(n)
+    start = time.time()
+    fib_numba(n)
+    end = time.time()
+    return end - start
+
+def time_fib_c(n):
+    start = time.time()
+    f=Person(n)
+    f.fib()
+    end = time.time()
+    
+def plott():
+    fig = plt.figure()#figsize =(10, 7))
+    ax = fig.add_subplot()
+    fib_numba = []
+    fib_py=[]
+    fib_c=[]
+    #numb = [20,21,22,23,24,25,26,27,28,29,30]
+    numb = [30,31,32,33,34,35,36,37,38,39,50,41,42,43,44,45]
+    for n in numb:
+        fib_numba.append(time_fib_numba(n))
+        fib_py.append(time_fib_py(n))
+        fib_c.append(time_fib_c(n))
+    
+    plt.scatter(numb,fib_numba,color = 'blue',label='numba')
+    plt.scatter(numb,fib_py,color='red',label='python')
+    #plt.scatter(numb,fib_c,color='green',label='c++')
+    plt.legend()
+    plt.title("Tidtagning för fibonacci med olika typer av språk")
+    plt.show()
+    
+plott()
+
+print("time for numba; n=47 ",time_fib_numba(47))
+
+print("time for c++; n=47",time_fib_c(47) )
